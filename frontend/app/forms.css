@@ -1,0 +1,17 @@
+.modal-backdrop{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:20px;background:#101b16b8;backdrop-filter:blur(4px)}
+.modal{width:min(680px,100%);max-height:90vh;overflow:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper);box-shadow:0 24px 80px #07100b4d}
+.icon-button{width:34px;height:34px;border:1px solid var(--line);border-radius:9px;background:white;font-size:20px;cursor:pointer}
+.form-stack,.form-section{display:flex;flex-direction:column;gap:16px}
+.form-stack{padding:22px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.form-stack label,.form-section label{display:flex;flex-direction:column;gap:6px;color:#58645d;font-size:11px;font-weight:700}
+.form-stack input,.form-stack textarea,.form-stack select,.form-section input,.form-section textarea,.form-section select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:9px;background:white;color:var(--ink);font:inherit;font-size:13px}
+.form-stack input:focus,.form-stack textarea:focus,.form-stack select:focus,.form-section input:focus,.form-section textarea:focus,.form-section select:focus{border-color:var(--green);outline:3px solid #176b4520}
+.form-actions{display:flex;justify-content:flex-end;gap:9px;padding-top:6px}
+.editor-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;align-items:start}
+.editor-main{display:flex;flex-direction:column;gap:16px}
+.form-section{padding:22px;border:1px solid var(--line);border-radius:var(--radius);background:white}
+.code-input{font-family:ui-monospace,SFMono-Regular,Menlo,monospace!important;line-height:1.55}
+.editor-actions{position:sticky;top:86px;display:flex;flex-direction:column;gap:12px;padding:22px;border:1px solid var(--line);border-radius:var(--radius);background:white}
+.editor-actions h2{margin:0}.editor-actions p{margin:0 0 8px;color:var(--muted);font-size:12px;line-height:1.6}
+@media(max-width:900px){.editor-layout{grid-template-columns:1fr}.editor-actions{position:static;grid-row:1}.form-grid{grid-template-columns:1fr}}

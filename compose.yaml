@@ -1,0 +1,68 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-evalforge}
+      POSTGRES_USER: ${POSTGRES_USER:-evalforge}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-evalforge-local}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-evalforge}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      EVALFORGE_DATABASE_URL: ${EVALFORGE_DATABASE_URL:-postgresql+psycopg://evalforge:evalforge-local@postgres:5432/evalforge}
+      EVALFORGE_REDIS_URL: ${EVALFORGE_REDIS_URL:-redis://redis:6379/0}
+      EVALFORGE_INLINE_JOBS: "false"
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    ports: ["8000:8000"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: ["dramatiq", "evalforge.worker", "--processes", "1", "--threads", "4"]
+    environment:
+      EVALFORGE_DATABASE_URL: ${EVALFORGE_DATABASE_URL:-postgresql+psycopg://evalforge:evalforge-local@postgres:5432/evalforge}
+      EVALFORGE_REDIS_URL: ${EVALFORGE_REDIS_URL:-redis://redis:6379/0}
+    depends_on:
+      api: { condition: service_healthy }
+
+  web:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    environment:
+      API_URL: ${API_URL:-http://api:8000}
+    depends_on:
+      api: { condition: service_healthy }
+    ports: ["3000:3000"]
+
+volumes:
+  postgres-data:
+  redis-data:
